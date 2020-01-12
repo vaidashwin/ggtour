@@ -1,6 +1,10 @@
 .idea
+project
 *.iml
 .DS_Store
 
-.class
-.jar
+*.class
+*.jar
+target
+*target*
+project

@@ -9,6 +9,8 @@ import akka.actor.typed.scaladsl.Behaviors
 import io.ggtour.core.redis.GGRedis
 import io.ggtour.ladder.challenge.Challenge
 
+import spray.json._
+
 object LadderService extends ServiceActor {
   override def serviceBaseName: String = "ladder"
   override def serviceBehavior: Behavior[GGMessage] = Behaviors.receive {
@@ -24,6 +26,7 @@ object LadderService extends ServiceActor {
           isAccepted = false,
           Vector()
         )
+        challenge.toJson
         // TODO: message discord service to ping the player
         client.set(challengeUUID, challenge)
       }
@@ -31,7 +34,6 @@ object LadderService extends ServiceActor {
     case (_, ReportResults(Some(challengeID), replay)) =>
       GGRedis.clients.withClient { client =>
         client.get(challengeID)
-
       }
       Behaviors.stopped
   }

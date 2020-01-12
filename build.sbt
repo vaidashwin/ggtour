@@ -19,9 +19,7 @@ lazy val core = project
       "com.typesafe.akka" %% "akka-discovery" % "2.6.1",
       "com.typesafe" % "config" % "1.4.0",
       "net.debasishg" %% "redisclient" % "3.20",
-      "com.fasterxml.jackson.core" % "jackson-databind" % "2.2.2",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.2.2"
-
+      "io.spray" %%  "spray-json" % "1.3.4"
     ),
   )
   .dependsOn(game)
