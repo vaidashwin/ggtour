@@ -8,6 +8,11 @@ scalaSource in Compile := baseDirectory.value / "src"
 // library projects
 lazy val game = project
   .in(file("./game"))
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.spray" %%  "spray-json" % "1.3.4"
+    )
+  )
 
 lazy val core = project
   .in(file("./core"))

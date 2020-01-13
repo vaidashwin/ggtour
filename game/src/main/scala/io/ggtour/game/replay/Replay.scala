@@ -1,3 +1,8 @@
 package io.ggtour.game.replay
 
-case class Replay()
+import java.util.UUID
+
+case class Replay() {
+  def getWinners: List[UUID] = ???
+
+}
