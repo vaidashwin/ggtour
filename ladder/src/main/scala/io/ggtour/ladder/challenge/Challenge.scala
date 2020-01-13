@@ -6,7 +6,7 @@ import io.ggtour.ladder.elo.GameResult
 
 case class Challenge(id: UUID,
                      challengerID: UUID,
-                     challengeeID: UUID,
+                     challengeeIDs: Vector[UUID],
                      formatID: UUID,
                      bestOf: Int,
                      isAccepted: Boolean,

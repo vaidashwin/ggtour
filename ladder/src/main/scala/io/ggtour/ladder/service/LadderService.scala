@@ -8,19 +8,20 @@ import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import io.ggtour.core.redis.GGRedis
 import io.ggtour.ladder.challenge.Challenge
+import io.ggtour.ladder.elo.{GameResult, Result}
 import spray.json._
 import io.ggtour.ladder.json.LadderJsonFormats._
 
 object LadderService extends ServiceActor {
   override def serviceBaseName: String = "ladder"
   override def serviceBehavior: Behavior[GGMessage] = Behaviors.receive {
-    case (_, ChallengePlayer(challengerID, challengeeID, formatID, bestOf)) =>
+    case (_, ChallengePlayer(challengerID, challengeeIDs, formatID, bestOf)) =>
       GGRedis.clients.withClient { client =>
         val challengeID = UUID.randomUUID()
         val challenge = Challenge(
           challengeID,
           challengerID,
-          challengeeID,
+          challengeeIDs,
           formatID,
           bestOf,
           isAccepted = false,
@@ -34,14 +35,15 @@ object LadderService extends ServiceActor {
       val winners = replay.getWinners
       GGRedis.clients.withClient { client =>
         client.get(challengeID).map(_.parseJson).collect {
-          case JsObject(Challenge(_, challengerID, challengeeID, formatID, bestOf, _, results)) =>
+          case JsObject(Challenge(_, challengerID, challengeeIDs, formatID, bestOf, _, results)) =>
+            val losers = (challengerID +: challengeeIDs).diff(winners)
             val newChallenge = Challenge(challengeID,
               challengerID,
-              challengeeID,
+              challengeeIDs,
               formatID,
               bestOf,
               isAccepted = true,
-              results
+              results :+ GameResult((winners.map(_ -> Result.Win) ++ losers.map(_ -> Result.Loss)).toMap)
             )
             if ( newChallenge.isComplete ) {
               // TODO: write ELO changes

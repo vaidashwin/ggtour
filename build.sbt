@@ -33,3 +33,7 @@ lazy val core = project
 lazy val ladder = project
   .in(file("./ladder"))
   .dependsOn(core)
+
+lazy val discord = project
+  .in(file("./discord"))
+  .dependsOn(core)
