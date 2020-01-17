@@ -2,7 +2,7 @@ package io.ggtour.ladder.elo
 
 import java.util.UUID
 
-import io.ggtour.ladder.LadderFormat
+import io.ggtour.ladder.formats.LadderFormat
 
 abstract class HandlesGameResults(protected val format: LadderFormat) {
   /**

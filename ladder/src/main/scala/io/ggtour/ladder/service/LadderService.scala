@@ -35,8 +35,18 @@ object LadderService extends ServiceActor {
       val winners = replay.getWinners
       GGRedis.clients.withClient { client =>
         client.get(challengeID).map(_.parseJson).collect {
-          case JsObject(Challenge(_, challengerID, challengeeIDs, formatID, bestOf, _, results)) =>
-            val losers = (challengerID +: challengeeIDs).diff(winners)
+          case JsObject(fields) =>
+            for {
+              JsString(challengerID) <- fields.get("challengerID")
+              JsArray(jsonChallengeeIDs) <- fields.get("challengeeIDs")
+              JsString(formatID) <- fields.get("formatID")
+              JsNumber(bestOf) <- fields.get("bestOf")
+              JsObject(asdf) <- fields.get("results")
+            } yield {
+              val challengeIDs
+
+              val losers = (challengerID +: challengeeIDs).diff(winners)
+            }
             val newChallenge = Challenge(challengeID,
               challengerID,
               challengeeIDs,

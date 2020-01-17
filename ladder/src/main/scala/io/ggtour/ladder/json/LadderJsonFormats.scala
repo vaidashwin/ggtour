@@ -1,12 +1,12 @@
 package io.ggtour.ladder.json
 
-import io.ggtour.core.json.CoreJsonProtocol
+import io.ggtour.common.json.CommonJsonProtocols
 import io.ggtour.ladder.challenge.Challenge
 import io.ggtour.ladder.elo.{GameResult, Result}
 import io.ggtour.ladder.elo.Result.Result
 import spray.json.{JsString, JsValue, JsonFormat, RootJsonFormat}
 
-object LadderJsonFormats extends CoreJsonProtocol {
+object LadderJsonFormats extends CommonJsonProtocols {
   implicit val challengeFormat: JsonFormat[Challenge] = jsonFormat7(Challenge)
   implicit val gameResultFormat: JsonFormat[GameResult] = jsonFormat1(GameResult)
   implicit val resultFormat: JsonFormat[Result.Value] = new JsonFormat[Result.Value] {
