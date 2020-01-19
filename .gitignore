@@ -1,5 +1,4 @@
 .idea
-project
 *.iml
 .DS_Store
 
@@ -7,4 +6,4 @@ project
 *.jar
 target
 *target*
-project
+project/target

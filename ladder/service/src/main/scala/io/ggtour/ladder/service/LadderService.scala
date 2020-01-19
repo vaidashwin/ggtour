@@ -2,15 +2,15 @@ package io.ggtour.ladder.service
 
 import java.util.UUID
 
-import io.ggtour.core.service.{GGMessage, ServiceActor}
-import LadderMessages._
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import io.ggtour.core.redis.GGRedis
+import io.ggtour.core.service.{GGMessage, ServiceActor}
 import io.ggtour.ladder.challenge.Challenge
 import io.ggtour.ladder.elo.{GameResult, Result}
-import spray.json._
 import io.ggtour.ladder.json.LadderJsonFormats._
+import io.ggtour.ladder.service.LadderMessages._
+import spray.json._
 
 object LadderService extends ServiceActor {
   override def serviceBaseName: String = "ladder"
@@ -34,36 +34,34 @@ object LadderService extends ServiceActor {
     case (_, ReportResults(Some(challengeID), replay)) =>
       val winners = replay.getWinners
       GGRedis.clients.withClient { client =>
-        client.get(challengeID).map(_.parseJson).collect {
-          case JsObject(fields) =>
-            for {
-              JsString(challengerID) <- fields.get("challengerID")
-              JsArray(jsonChallengeeIDs) <- fields.get("challengeeIDs")
-              JsString(formatID) <- fields.get("formatID")
-              JsNumber(bestOf) <- fields.get("bestOf")
-              JsObject(asdf) <- fields.get("results")
-            } yield {
-              val challengeIDs
-
+        val newChallenge =
+          client.get(challengeID).map(_.parseJson.convertTo[Challenge]).map {
+            case Challenge(
+                _,
+                challengerID,
+                challengeeIDs,
+                formatID,
+                bestOf,
+                _,
+                results) =>
               val losers = (challengerID +: challengeeIDs).diff(winners)
-            }
-            val newChallenge = Challenge(challengeID,
-              challengerID,
-              challengeeIDs,
-              formatID,
-              bestOf,
-              isAccepted = true,
-              results :+ GameResult((winners.map(_ -> Result.Win) ++ losers.map(_ -> Result.Loss)).toMap)
-            )
-            if ( newChallenge.isComplete ) {
-              // TODO: write ELO changes
-            } else {
-              // update stored challenge
-              client.set(challengeID, newChallenge.toJson)
-            }
-        }.getOrElse {
-          // no existing challenge, so this was a pug
+              Challenge(
+                challengeID,
+                challengerID,
+                challengeeIDs,
+                formatID,
+                bestOf,
+                isAccepted = true,
+                results :+ GameResult((winners.map(_ -> Result.Win) ++ losers
+                  .map(_ -> Result.Loss)).toMap)
+              )
+          }
+        if (newChallenge.exists(_.isComplete)) {
+          client.del(challengeID) // challenge is over
           // TODO: write ELO changes
+        } else {
+          // update stored challenge
+          newChallenge.map(chall => client.set(challengeID, chall.toJson))
         }
       }
       Behaviors.stopped

@@ -1,6 +1,6 @@
 package io.ggtour.common.config
 
-import com.typesafe.config.{Config => TSConfig, ConfigFactory}
+import com.typesafe.config.{Config, ConfigFactory}
 
 object Config {
   private val config = ConfigFactory.load()

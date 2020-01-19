@@ -7,18 +7,21 @@ import akka.management.scaladsl.AkkaManagement
 
 object Clustering {
   private var system: Option[ActorSystem[GGMessage]] = None
+
   def actorSystem: ActorSystem[GGMessage] =
-    system.getOrElse(throw new RuntimeException("Clustering was not initialized."))
+    system.getOrElse(
+      throw new RuntimeException("Clustering was not initialized."))
   // bootstrap actor system and clustering
-  def init(serviceActor: ServiceActor): Unit = {
-    if ( system.isEmpty ) {
-      system = Some(ActorSystem(GGTourBehavior.apply(serviceActor), "ggtour-system"))
+  def init(serviceActor: ServiceActor): Unit =
+    if (system.isEmpty) {
+      system = Some(
+        ActorSystem(GGTourBehavior.apply(serviceActor), "ggtour-system"))
       AkkaManagement(actorSystem).start()
       ClusterBootstrap(actorSystem).start()
     } else {
-      system.foreach(_.log.warn("Attempted to initialize Clustering more than once."))
+      system.foreach(
+        _.log.warn("Attempted to initialize Clustering more than once."))
     }
-  }
 }
 
 object GGTourBehavior {
