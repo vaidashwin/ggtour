@@ -1,0 +1,16 @@
+<configuration>
+    <appender name="file-rolling" class="ch.qos.logback.core.rolling,RollingFileAppender">
+        <file>/var/log/ggtour/ggtour-everything.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>/var/logs/ggtour/archived/ggtour.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>128MB</maxFileSize>
+            <totalSizeCap>512MB</totalSizeCap>
+            <maxHistory>5</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <logger name="io.ggtour" level="info">
+        <appender-ref ref="file-rolling"/>
+    </logger>
+</configuration>

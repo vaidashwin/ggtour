@@ -21,12 +21,22 @@ object GGStorage
   override protected def computeCapabilities: Set[Capability] =
     super.computeCapabilities + JdbcCapabilities.insertOrUpdate
 
-  override val api = new API with ArrayImplicits with DateTimeImplicits
-  with JsonImplicits with NetImplicits with LTreeImplicits with RangeImplicits
-  with HStoreImplicits with SearchImplicits with SearchAssistants {
+  object GGTourAPI
+      extends API
+      with ArrayImplicits
+      with DateTimeImplicits
+      with JsonImplicits
+      with NetImplicits
+      with LTreeImplicits
+      with RangeImplicits
+      with HStoreImplicits
+      with SearchImplicits
+      with SearchAssistants {
     implicit val strListTypeMapper =
       new SimpleArrayJdbcType[String]("text").to(_.toList)
   }
+
+  override val api = GGTourAPI
 
   val db: GGStorage.backend.Database =
     api.Database.forConfig("ggtour.service.io.ggtour.common.storage")

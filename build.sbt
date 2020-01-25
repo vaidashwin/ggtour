@@ -1,5 +1,6 @@
 scalaVersion in ThisBuild := "2.12.3"
 organization in ThisBuild := "io.ggtour"
+version in ThisBuild := "1.0.0"
 
 // GLOBAL SETTINGS
 scalaSource in Compile := baseDirectory.value / "src"
@@ -10,6 +11,7 @@ addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.2.1")
 // PROJECTS
 // library + model projects
 import ProjectTypes._
+import TaskKeys._
 
 lazy val common = project
   .in(file("./common"))
@@ -20,7 +22,8 @@ lazy val common = project
       "io.spray" %% "spray-json" % "1.3.4",
       "com.github.tminglei" %% "slick-pg" % "0.18.1",
       "com.github.tminglei" %% "slick-pg_joda-time" % "0.18.1",
-      "com.github.tminglei" %% "slick-pg_spray-json" % "0.18.1"
+      "com.github.tminglei" %% "slick-pg_spray-json" % "0.18.1",
+      "ch.qos.logback" % "logback-classic" % "1.2.3"
     )
   )
 
@@ -72,8 +75,17 @@ lazy val core = project
 
 lazy val ladderService = serviceProject("ladderService")
   .in(file("./ladder"))
-  .dependsOn(ladder)
+  .dependsOn(core, ladder)
 
 lazy val discordService = serviceProject("discordService")
   .in(file("./discord"))
-  .dependsOn(discord)
+  .dependsOn(core, discord)
+
+reStartSandbox in ThisBuild := {
+  reStopSandbox.value
+  println("Starting sandbox...")
+}
+
+reStopSandbox in ThisBuild := {
+  println("Stopping sandbox...")
+}

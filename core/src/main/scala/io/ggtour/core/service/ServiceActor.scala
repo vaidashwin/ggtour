@@ -8,6 +8,4 @@ abstract class ServiceActor {
   def serviceBehavior: Behavior[GGMessage]
   protected def serviceBaseName: String
   def getActorName: String = s"$serviceBaseName:${UUID.randomUUID()}"
-
-  Clustering.init(this)
 }
