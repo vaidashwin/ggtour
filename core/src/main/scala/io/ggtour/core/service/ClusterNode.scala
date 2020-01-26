@@ -4,6 +4,7 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorSystem, Behavior}
 import akka.management.cluster.bootstrap.ClusterBootstrap
 import akka.management.scaladsl.AkkaManagement
+import akka.actor.typed.scaladsl.adapter._
 
 // Shared logic for entry point for each node in the cluster. Each service should
 // implement this class.
@@ -11,8 +12,8 @@ abstract class ClusterNode(serviceActor: ServiceActor) extends App {
   val actorSystem: ActorSystem[GGMessage] =
     ActorSystem(GGTourBehavior.apply(serviceActor), "ggtour-system")
 
-  AkkaManagement(actorSystem).start()
-  ClusterBootstrap(actorSystem).start()
+  AkkaManagement(actorSystem.toClassic).start()
+  ClusterBootstrap(actorSystem.toClassic).start()
 }
 
 object GGTourBehavior {

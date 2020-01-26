@@ -1,3 +1,4 @@
+name in ThisBuild := "ggtour"
 scalaVersion in ThisBuild := "2.12.3"
 organization in ThisBuild := "io.ggtour"
 version in ThisBuild := "1.0.0"
@@ -5,15 +6,11 @@ version in ThisBuild := "1.0.0"
 // GLOBAL SETTINGS
 scalaSource in Compile := baseDirectory.value / "src"
 
-// PLUGINS
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.2.1")
-
 // PROJECTS
 // library + model projects
 import ProjectTypes._
-import TaskKeys._
 
-lazy val common = project
+lazy val common = dependencyProject("common")
   .in(file("./common"))
   .settings(
     libraryDependencies ++= Seq(
@@ -27,11 +24,11 @@ lazy val common = project
     )
   )
 
-lazy val account = project
+lazy val account = dependencyProject("account")
   .in(file("./account"))
   .dependsOn(common)
 
-lazy val game = project
+lazy val game = dependencyProject("game")
   .in(file("./game"))
   .settings(
     libraryDependencies ++= Seq(
@@ -40,7 +37,7 @@ lazy val game = project
   )
   .dependsOn(common)
 
-lazy val ladder = project
+lazy val ladder = dependencyProject("ladder")
   .in(file("./ladder"))
   .settings(
     libraryDependencies ++= Seq(
@@ -49,7 +46,7 @@ lazy val ladder = project
   )
   .dependsOn(core, account)
 
-lazy val discord = project
+lazy val discord = dependencyProject("discord")
   .in(file("./discord"))
   .settings(
     libraryDependencies ++= Seq(
@@ -60,32 +57,23 @@ lazy val discord = project
   .dependsOn(core, account)
 
 // service projects
-lazy val core = project
+lazy val core = dependencyProject("core")
   .in(file("./core"))
   .settings(
     libraryDependencies ++= Seq(
-      "com.typesafe.akka" %% "akka-actor-typed" % "2.6.1",
-      "com.typesafe.akka" %% "akka-cluster-typed" % "2.6.1",
+      "com.typesafe.akka" %% "akka-actor-typed" % "2.6.0",
+      "com.typesafe.akka" %% "akka-cluster-typed" % "2.6.0",
       "com.lightbend.akka.management" %% "akka-management-cluster-bootstrap" % "1.0.5",
-      "com.typesafe.akka" %% "akka-discovery" % "2.6.1",
+      "com.typesafe.akka" %% "akka-discovery" % "2.6.0",
       "net.debasishg" %% "redisclient" % "3.20"
     ),
   )
   .dependsOn(common, game)
 
-lazy val ladderService = serviceProject("ladderService")
+lazy val ladderService = serviceProject("ladderService", "io.ggtour.ladder.service.LadderService")
   .in(file("./ladder"))
   .dependsOn(core, ladder)
 
-lazy val discordService = serviceProject("discordService")
+lazy val discordService = serviceProject("discordService", "io.ggtour.ladder.service.DiscordService")
   .in(file("./discord"))
   .dependsOn(core, discord)
-
-reStartSandbox in ThisBuild := {
-  reStopSandbox.value
-  println("Starting sandbox...")
-}
-
-reStopSandbox in ThisBuild := {
-  println("Stopping sandbox...")
-}
