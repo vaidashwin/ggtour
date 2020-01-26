@@ -8,17 +8,17 @@ import akka.actor.typed.scaladsl.adapter._
 
 // Shared logic for entry point for each node in the cluster. Each service should
 // implement this class.
-abstract class ClusterNode(serviceActor: ServiceActor) extends App {
+abstract class ClusterNode[T <: GGMessage](serviceActor: ServiceActor[T]) extends App {
   val actorSystem: ActorSystem[GGMessage] =
-    ActorSystem(GGTourBehavior.apply(serviceActor), "ggtour-system")
+    ActorSystem(GGTourBehavior.apply(serviceActor), s"ggtour-${serviceActor.serviceBaseName}-system")
 
   AkkaManagement(actorSystem.toClassic).start()
   ClusterBootstrap(actorSystem.toClassic).start()
 }
 
 object GGTourBehavior {
-  def apply(service: ServiceActor): Behavior[GGMessage] = Behaviors.receive {
-    case (context, message: GGMessage) =>
+  def apply[T <: GGMessage](service: ServiceActor[T]): Behavior[GGMessage] = Behaviors.receive {
+    case (context, message: T) =>
       context.spawn(service.serviceBehavior, service.getActorName) ! message
       Behaviors.same
   }

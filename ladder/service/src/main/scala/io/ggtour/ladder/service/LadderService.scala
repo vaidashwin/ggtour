@@ -13,9 +13,9 @@ import io.ggtour.ladder.service.LadderMessages._
 import spray.json._
 
 object LadderService extends ClusterNode(LadderServiceActor)
-object LadderServiceActor extends ServiceActor {
+object LadderServiceActor extends ServiceActor[LadderMessage] {
   override def serviceBaseName: String = "ladder"
-  override def serviceBehavior: Behavior[GGMessage] = Behaviors.receive {
+  override def serviceBehavior: Behavior[LadderMessage] = Behaviors.receive {
     case (_, ChallengePlayer(challengerID, challengeeIDs, formatID, bestOf)) =>
       GGRedis.clients.withClient { client =>
         val challengeID = UUID.randomUUID()

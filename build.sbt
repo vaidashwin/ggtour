@@ -77,3 +77,11 @@ lazy val ladderService = serviceProject("ladderService", "io.ggtour.ladder.servi
 lazy val discordService = serviceProject("discordService", "io.ggtour.ladder.service.DiscordService")
   .in(file("./discord"))
   .dependsOn(core, discord)
+
+// Sandbox project; add service projects to its dependencies.
+lazy val ggtour = project
+    .in(file("."))
+    .dependsOn(ladderService, discordService)
+    .settings(
+      mainClass in reStart := Some("io.ggtour.Sandbox")
+    )

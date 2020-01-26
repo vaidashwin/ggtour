@@ -8,12 +8,17 @@ their Elo and standing.
 
 See [Use Cases](USE_CASES.md) for more design details.
 
-## Getting Started
+## Getting Started (WIP)
 
 #### Prerequisites:
 1) SBT 1.2.1+ (https://www.scala-sbt.org/download.html)
 2) Postgres 12+ (https://www.postgresql.org/download/)
 3) Redis 5.0+ (https://redis.io/download)
+
+#### Run steps
+1) Clone the repository.
+2) Run `sbt` within the repository root. It should start in the `ggtour` project.
+3) Run `reStart` to start up the sandbox environment.
 
 ## Architecture/Design
 GGTour is intended to have two points of entry: a

@@ -11,11 +11,13 @@ object LadderMessages {
       challengeeIDs: Vector[UUID],
       formatID: UUID,
       bestOf: Int)
-      extends GGMessage {
+      extends LadderMessage {
     require(bestOf % 2 == 1 && bestOf > 0) // Must be an odd number of matches
   }
   case class RespondToChallenge(challengeID: UUID, accepted: Boolean)
-      extends GGMessage
+      extends LadderMessage
   case class ReportResults(challengeID: Option[UUID], replay: Replay)
-      extends GGMessage
+      extends LadderMessage
 }
+
+sealed trait LadderMessage extends GGMessage
