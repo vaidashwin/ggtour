@@ -1,0 +1,32 @@
+html, body {
+    background-color: #888890;
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+}
+
+.container {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+}
+
+.backsplash {
+    flex: 0 1 2.25in;
+}
+
+.backsplash img {
+    display: block;
+    position: relative;
+    bottom: -.33in;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.pagebody {
+    box-shadow: 0 -7px 5px rgba(66, 66, 66, .2);
+    margin-top: -.33in;
+    padding-top: .4in;
+    background-color: #666699;
+    flex: 1 1 auto;
+}

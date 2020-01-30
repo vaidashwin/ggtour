@@ -8,4 +8,6 @@ object DiscordMessages {
   case class MentionUser(discordID: DiscordID, channelID: Int, message: String) extends DiscordMessage
 }
 
-sealed trait DiscordMessage extends GGMessage
+sealed trait DiscordMessage extends GGMessage {
+  val service = "discord"
+}

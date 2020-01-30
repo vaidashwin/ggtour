@@ -62,9 +62,6 @@ lazy val core = dependencyProject("core")
   .settings(
     libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-actor-typed" % "2.6.0",
-      "com.typesafe.akka" %% "akka-cluster-typed" % "2.6.0",
-      "com.lightbend.akka.management" %% "akka-management-cluster-bootstrap" % "1.0.5",
-      "com.typesafe.akka" %% "akka-discovery" % "2.6.0",
       "net.debasishg" %% "redisclient" % "3.20"
     ),
   )
@@ -78,10 +75,17 @@ lazy val discordService = serviceProject("discordService", "io.ggtour.ladder.ser
   .in(file("./discord"))
   .dependsOn(core, discord)
 
+lazy val webapp = serviceProject("webapp", "io.ggtour.webapp.GGTour")
+  .in(file("./webapp"))
+  .settings(
+    baseDirectory := file(".") / "webapp"
+  )
+  .dependsOn(core)
+
 // Sandbox project; add service projects to its dependencies.
 lazy val ggtour = project
     .in(file("."))
-    .dependsOn(ladderService, discordService)
+    .dependsOn(ladderService, discordService, webapp)
     .settings(
       mainClass in reStart := Some("io.ggtour.Sandbox")
     )

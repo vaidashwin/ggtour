@@ -20,4 +20,6 @@ object LadderMessages {
       extends LadderMessage
 }
 
-sealed trait LadderMessage extends GGMessage
+sealed trait LadderMessage extends GGMessage {
+  val service = "ladder"
+}

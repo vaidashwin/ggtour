@@ -5,14 +5,14 @@ import java.util.UUID
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import io.ggtour.core.redis.GGRedis
-import io.ggtour.core.service.{ClusterNode, GGMessage, ServiceActor}
+import io.ggtour.core.service.{ServiceNode, GGMessage, ServiceActor}
 import io.ggtour.ladder.challenge.Challenge
 import io.ggtour.ladder.elo.{GameResult, Result}
 import io.ggtour.ladder.json.LadderJsonFormats._
 import io.ggtour.ladder.service.LadderMessages._
 import spray.json._
 
-object LadderService extends ClusterNode(LadderServiceActor)
+object LadderService extends ServiceNode(LadderServiceActor)
 object LadderServiceActor extends ServiceActor[LadderMessage] {
   override def serviceBaseName: String = "ladder"
   override def serviceBehavior: Behavior[LadderMessage] = Behaviors.receive {
