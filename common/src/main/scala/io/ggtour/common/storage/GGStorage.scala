@@ -4,7 +4,7 @@ import com.github.tminglei.slickpg._
 import slick.basic.Capability
 import slick.jdbc.JdbcCapabilities
 
-object GGStorage
+trait GGStorage
     extends ExPostgresProfile
     with PgArraySupport
     with PgDate2Support
@@ -38,6 +38,10 @@ object GGStorage
 
   override val api = GGTourAPI
 
-  val db: GGStorage.backend.Database =
-    api.Database.forConfig("ggtour.service.io.ggtour.common.storage")
+  val db: backend.Database = {
+    import api._
+    Database.forConfig("postgres")
+  }
 }
+
+object GGStorage extends GGStorage

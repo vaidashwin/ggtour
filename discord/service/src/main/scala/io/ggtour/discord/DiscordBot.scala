@@ -4,11 +4,14 @@ import ackcord._
 import ackcord.requests._
 import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.stream.scaladsl.Sink
+import io.ggtour.core.service.ServiceNode
 import io.ggtour.common.config.GGTourConfig
-import io.ggtour.core.service.{GGMessage, ServiceNode}
+import io.ggtour.common.service.GGMessage
+import io.ggtour.core.service.ServiceNode
 
-case class DiscordClient(service: ServiceNode[_ <: GGMessage]) {
+case class DiscordBot(service: ServiceNode[_ <: GGMessage]) {
   implicit val actorSystem: ActorSystem[_] = service.actorSystem
+
   import actorSystem.executionContext
   val token: String = GGTourConfig().getString("discord.token")
 
@@ -30,8 +33,9 @@ case class DiscordClient(service: ServiceNode[_ <: GGMessage]) {
   DiscordShard.fetchWsGateway.foreach { wsUri =>
     val shard = actorSystem.systemActorOf(
       DiscordShard(wsUri, gatewaySettings, cache),
-      "DiscordShard")
-  //shard ! DiscordShard.StartShard
+      "discord:shard")
+    shard ! DiscordShard.StartShard
   }
 
+  val commands: BotCommands = new BotCommands(cache, requests, actorSystem)
 }

@@ -1,10 +1,12 @@
 package io.ggtour.core.service
 
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.{ActorSystem, Behavior, Scheduler}
+import akka.actor.typed.{ActorRef, ActorSystem, Behavior, Scheduler}
 import akka.actor.typed.scaladsl.adapter._
 import akka.util.Timeout
 import akka.actor.typed.scaladsl.AskPattern._
+import io.ggtour.common.service.GGMessage
+import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.Future
 
@@ -14,14 +16,15 @@ abstract class ServiceNode[T <: GGMessage](val serviceActor: ServiceActor[T]) ex
   val actorSystem: ActorSystem[GGMessage] =
     ActorSystem(GGTourBehavior(serviceActor), s"ggtour-${serviceActor.serviceBaseName}-system")
 
-  def ! (message: GGMessage): Unit = actorSystem ! message
-  def ?[V] (message: GGRequest[V])(implicit timeout: Timeout, scheduler: Scheduler): Future[V] =
-    actorSystem.ask(_ => message)
+  def apply(): ActorRef[GGMessage] = actorSystem
+  def system(): ActorSystem[GGMessage] = actorSystem
 }
 
 object GGTourBehavior {
+  val logger: Logger = LoggerFactory.getLogger(this.getClass)
   def apply[T <: GGMessage](service: ServiceActor[T]): Behavior[GGMessage] = Behaviors.receive {
     case (context, message: T) =>
+      logger.debug("Received message: {}", message)
       context.spawn(service.serviceBehavior, service.getActorName) ! message
       Behaviors.same
   }

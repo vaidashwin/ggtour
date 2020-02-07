@@ -1,0 +1,10 @@
+discord.token =
+redis.password =
+postgres {
+    properties {
+        host =
+        port =
+        database =
+        password =
+    }
+}

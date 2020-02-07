@@ -1,6 +1,7 @@
 .idea
 *.iml
 .DS_Store
+application-user.conf
 
 *.class
 *.jar

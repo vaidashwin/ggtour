@@ -41,6 +41,10 @@ class AccountTable(tag: Tag) extends Table[Account](tag, "account") {
     })
 }
 
+object AccountTable {
+  def getTableQuery: TableQuery[AccountTable] = TableQuery[AccountTable]
+}
+
 case class Account(
     accountID: UUID,
     username: String,
@@ -57,11 +61,10 @@ object Account {
     Compiled(query(_))
   }
   def forAccountID(accountID: UUID)(
-      implicit executionContext: ExecutionContext): Future[Account] =
+      implicit executionContext: ExecutionContext): Future[Option[Account]] =
     GGStorage.db
       .run(accountIDQuery(accountID).result)
-      .map(_.headOption.getOrElse(
-        throw new RuntimeException("Account doesn't exist")))
+      .map(_.headOption)
 
   private val discordIDQuery = {
     val query = (dID: Rep[String]) =>
@@ -69,10 +72,9 @@ object Account {
     Compiled(query(_))
   }
   def forDiscordID(discordID: DiscordID)(
-      implicit executionContext: ExecutionContext): Future[Account] =
+      implicit executionContext: ExecutionContext): Future[Option[Account]] =
     GGStorage.db
       .run(discordIDQuery(discordID.toString).result)
-      .map(_.headOption.getOrElse(
-        throw new RuntimeException("Account doesn't exist")))
+      .map(_.headOption)
 
 }

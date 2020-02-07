@@ -4,20 +4,23 @@ import java.util.UUID
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
-import io.ggtour.core.redis.GGRedis
-import io.ggtour.core.service.{ServiceNode, GGMessage, ServiceActor}
+import io.ggtour.core.redis.GGRedisClientPool
+import io.ggtour.core.service.{ServiceActor, ServiceNode}
 import io.ggtour.ladder.challenge.Challenge
 import io.ggtour.ladder.elo.{GameResult, Result}
 import io.ggtour.ladder.json.LadderJsonFormats._
 import io.ggtour.ladder.service.LadderMessages._
 import spray.json._
 
+import scala.concurrent.duration._
+
 object LadderService extends ServiceNode(LadderServiceActor)
-object LadderServiceActor extends ServiceActor[LadderMessage] {
-  override def serviceBaseName: String = "ladder"
+
+object LadderServiceActor
+    extends ServiceActor[LadderMessage](LadderServiceName) {
   override def serviceBehavior: Behavior[LadderMessage] = Behaviors.receive {
     case (_, ChallengePlayer(challengerID, challengeeIDs, formatID, bestOf)) =>
-      GGRedis.clients.withClient { client =>
+      GGRedisClientPool().withClient { client =>
         val challengeID = UUID.randomUUID()
         val challenge = Challenge(
           challengeID,
@@ -29,12 +32,12 @@ object LadderServiceActor extends ServiceActor[LadderMessage] {
           Vector()
         )
         // TODO: message discord service to ping the player
-        client.set(challengeID, challenge.toJson)
+        client.set(challengeID, challenge.toJson, expire = 10 minutes)
       }
       Behaviors.stopped
     case (_, ReportResults(Some(challengeID), replay)) =>
       val winners = replay.getWinners
-      GGRedis.clients.withClient { client =>
+      GGRedisClientPool().withClient { client =>
         val newChallenge =
           client.get(challengeID).map(_.parseJson.convertTo[Challenge]).map {
             case Challenge(

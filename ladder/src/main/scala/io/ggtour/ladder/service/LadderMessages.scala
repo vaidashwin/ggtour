@@ -2,7 +2,7 @@ package io.ggtour.ladder.service
 
 import java.util.UUID
 
-import io.ggtour.core.service.GGMessage
+import io.ggtour.common.service.GGMessage
 import io.ggtour.game.replay.Replay
 
 object LadderMessages {
