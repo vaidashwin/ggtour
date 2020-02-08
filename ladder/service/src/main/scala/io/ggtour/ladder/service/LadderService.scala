@@ -18,7 +18,7 @@ object LadderService extends ServiceNode(LadderServiceActor)
 
 object LadderServiceActor
     extends ServiceActor[LadderMessage](LadderServiceName) {
-  override def serviceBehavior: Behavior[LadderMessage] = Behaviors.receive {
+  override def serviceBehavior: Behavior[LadderMessage] = Behaviors.receivePartial {
     case (_, ChallengePlayer(challengerID, challengeeIDs, formatID, bestOf)) =>
       GGRedisClientPool().withClient { client =>
         val challengeID = UUID.randomUUID()

@@ -1,7 +1,7 @@
 package io.ggtour.account.service
 
 import io.ggtour.account.model.{Account, DiscordID}
-import io.ggtour.common.service.{GGMessage, GGRequest, ServiceName}
+import io.ggtour.common.service.{GGMessage, GGRequest, GGResponse, ServiceName}
 
 object AccountMessages {
   case class GetAccountByDiscordID(
@@ -11,6 +11,6 @@ object AccountMessages {
 }
 
 sealed trait AccountMessage extends GGMessage
-sealed trait AccountRequest[T] extends GGRequest[T] with AccountMessage {
-  override val service = "account"
-}
+sealed trait AccountRequest[T] extends GGRequest[T] with AccountMessage
+
+case class AccountResponse[T](value: T) extends GGResponse[T](value) with AccountMessage

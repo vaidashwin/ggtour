@@ -5,6 +5,7 @@ import akka.actor.typed.{ActorRefResolver, Behavior}
 import io.ggtour.account.model.{Account, DiscordID}
 import io.ggtour.account.service.AccountMessages.GetAccountByDiscordID
 import io.ggtour.account.service.AccountServiceName
+import io.ggtour.common.service.GGResponse
 import io.ggtour.core.service.RemotingFacade._
 import io.ggtour.core.service.{ServiceActor, ServiceNode}
 import io.ggtour.discord.service.DiscordMessages._
@@ -18,7 +19,7 @@ object DiscordService extends ServiceNode(DiscordServiceActor) {
 
 object DiscordServiceActor
     extends ServiceActor[DiscordMessage](DiscordServiceName) {
-  override def serviceBehavior: Behavior[DiscordMessage] = Behaviors.receive {
+  override def serviceBehavior: Behavior[DiscordMessage] = Behaviors.receivePartial {
     case (_, DMUser(user, message)) =>
       // TODO: impl
       Behaviors.stopped
@@ -26,19 +27,6 @@ object DiscordServiceActor
     case (context, LfgFromDiscord(user)) =>
       implicit val actorSystem = context.system
       logger.debug("Player {} is looking for game.", user.username)
-      val delegateActor =
-        context.spawnAnonymous[Option[Account]](Behaviors.receive {
-          case (_, Some(account: Account)) =>
-            getServiceActor(LadderServiceName) ! ChallengePlayer(
-              account.accountID,
-              Vector(),
-              null,
-              1)
-            Behaviors.stopped
-          case _ =>
-            logger.warn("Challenger does not have an account.")
-            Behaviors.stopped
-        })
       getServiceActor(AccountServiceName) ! GetAccountByDiscordID(
         DiscordID(user.username, user.discriminator.toShort),
         (
@@ -46,7 +34,18 @@ object DiscordServiceActor
           ActorRefResolver(context.system).toSerializationFormat(context.self)
         )
       )
-      Behaviors.stopped
+      Behaviors.receive {
+        case (_, GGResponse(Some(account: Account))) =>
+          getServiceActor(LadderServiceName) ! ChallengePlayer(
+            account.accountID,
+            Vector(),
+            null,
+            1)
+          Behaviors.stopped
+        case _ =>
+          logger.warn("Challenger does not have an account.")
+          Behaviors.stopped
+      }
   }
 
 }

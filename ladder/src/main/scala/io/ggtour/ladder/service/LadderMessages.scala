@@ -2,7 +2,7 @@ package io.ggtour.ladder.service
 
 import java.util.UUID
 
-import io.ggtour.common.service.GGMessage
+import io.ggtour.common.service.{GGMessage, GGResponse}
 import io.ggtour.game.replay.Replay
 
 object LadderMessages {
@@ -20,6 +20,5 @@ object LadderMessages {
       extends LadderMessage
 }
 
-sealed trait LadderMessage extends GGMessage {
-  val service = "ladder"
-}
+sealed trait LadderMessage extends GGMessage
+case class LadderResponse[T](override val payload: T) extends GGResponse(payload) with LadderMessage

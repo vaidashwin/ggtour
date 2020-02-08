@@ -22,7 +22,7 @@ abstract class ServiceNode[T <: GGMessage](val serviceActor: ServiceActor[T]) ex
 
 object GGTourBehavior {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
-  def apply[T <: GGMessage](service: ServiceActor[T]): Behavior[GGMessage] = Behaviors.receive {
+  def apply[T <: GGMessage](service: ServiceActor[T]): Behavior[GGMessage] = Behaviors.receivePartial {
     case (context, message: T) =>
       logger.debug("Received message: {}", message)
       context.spawn(service.serviceBehavior, service.getActorName) ! message
