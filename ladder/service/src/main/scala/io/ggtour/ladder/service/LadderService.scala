@@ -31,7 +31,6 @@ object LadderServiceActor
           isAccepted = false,
           Vector()
         )
-        // TODO: message discord service to ping the player
         client.set(challengeID, challenge.toJson, expire = 10 minutes)
       }
       Behaviors.stopped

@@ -10,7 +10,7 @@ import scala.collection.mutable
 trait LadderFormat {
   val id: UUID
   val name: String
-  val discordLink: URI
+  val discordServerIDs: List[Long] // could be discordChannelIDs? not 100% sure on the preferred UX
   val mapPool: Set[UUID]
   val motws: Set[UUID]
 
@@ -23,9 +23,13 @@ trait LadderFormat {
 case class ForceSpec(players: Int)
 
 object LadderFormats {
-  private var formats: mutable.HashMap[UUID, LadderFormat] = mutable.HashMap()
-  private[formats] def register(format: LadderFormat) =
+  private val formats: mutable.HashMap[UUID, LadderFormat] = mutable.HashMap()
+  private val formatsByDiscordID: mutable.HashMap[Long, LadderFormat] = mutable.HashMap()
+  private[formats] def register(format: LadderFormat): Unit = {
     formats += (format.id -> format)
+    format.discordServerIDs.foreach(id => formatsByDiscordID += (id -> format))
+  }
 
   def getFormat(formatID: UUID): Option[LadderFormat] = formats.get(formatID)
+  def apply(discordID: Long): Option[LadderFormat] = formatsByDiscordID.get(discordID)
 }

@@ -12,13 +12,20 @@ See [Use Cases](USE_CASES.md) for more design details.
 
 #### Prerequisites:
 1) SBT 1.2.1+ (https://www.scala-sbt.org/download.html)
-2) Postgres 12+ (https://www.postgresql.org/download/)
-3) Redis 5.0+ (https://redis.io/download)
+1) Postgres 12+ (https://www.postgresql.org/download/)
+1) Redis 5.0+ (https://redis.io/download)
 
 #### Run steps
 1) Clone the repository.
-2) Run `sbt` within the repository root. It should start in the `ggtour` project.
-3) Run `reStart` to start up the sandbox environment.
+1) Copy `core/src/main/resources/application-user.conf.template` and
+add your Redis/Postgress/Discord values. SBT requires these for
+migration steps, so you need something here even if it's junk.
+1) Run `sbt` within the repository root. It should start in the
+ `ggtour` project.
+1) Run `flywayMigrate` to create your database if the Postgres values
+above are real (if you're doing DB independent dev, this can be 
+skipped).
+1) Run `reStart` to start up the sandbox environment.
 
 ## Architecture/Design
 GGTour is intended to have two points of entry: a
@@ -35,17 +42,24 @@ node is run on a specific machine. The overall design
 intention with a service on a cluster node is that it 
 should be interchangeable at runtime with any other one;
 that is if you run the same request twice, any two nodes
-with appropriate role can handle it equivalently.
+with appropriate role can handle it equivalently. If a request/
+response pattern is used, it is intended that the same actor
+will handle the response (since it will need to load in its
+own behavior). Therefore requests will include a replyTo value.
 
-Each node in the cluster will have up to two main
-processes running:
-1) Service JVM
-2) Redis node
+Each node in the cluster will run the service JVM which will host
+an `ActorSystem` for the service. Each `ActorSystem` will interact
+with others by the `RemotingFacade`, which will create actors that
+abstract out the location of the target service; this is for clustered
+deployments.
 
-The Redis node will be used as a cluster cache and will
-be clustered as well so as to synchronize each node. The
-nodes will ultimately be scaled up and down in order to
-handle load/be fault tolerant.
+In a clustered deployment, Kafka will be used for interservice messaging
+and the `RemotingFacade` will spawn a mock actor whose job is to read/write
+from the Kafka stream without visibility to the service. 
+
+The cluster will also include Redis hosts for short term storage across
+services (primarily used for ladder) and a Postgres db for backend
+storage. 
 
 #### Project Organization
 There are two types of sbt projects defined in this repo.
