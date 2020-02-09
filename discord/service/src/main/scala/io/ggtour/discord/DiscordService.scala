@@ -15,37 +15,47 @@ import io.ggtour.ladder.service.LadderServiceName
 
 object DiscordService extends ServiceNode(DiscordServiceActor) {
   val discordClient = DiscordBot(this)
+  def getClient = discordClient
 }
 
 object DiscordServiceActor
     extends ServiceActor[DiscordMessage](DiscordServiceName) {
-  override def serviceBehavior: Behavior[DiscordMessage] = Behaviors.receivePartial {
-    case (_, DMUser(user, message)) =>
-      // TODO: impl
-      Behaviors.stopped
-    // Process client requests
-    case (context, LfgFromDiscord(user)) =>
-      implicit val actorSystem = context.system
-      logger.debug("Player {} is looking for game.", user.username)
-      getServiceActor(AccountServiceName) ! GetAccountByDiscordID(
-        DiscordID(user.username, user.discriminator.toShort),
-        (
-          DiscordServiceName,
-          ActorRefResolver(context.system).toSerializationFormat(context.self)
+  override def serviceBehavior: Behavior[DiscordMessage] =
+    Behaviors.receivePartial {
+      case (_, DMUser(user, message)) =>
+        // TODO: impl
+        Behaviors.stopped
+      // Process client requests
+      case (context, LfgFromDiscord(user, inChannel)) =>
+        implicit val actorSystem = context.system
+        logger.debug("Player {} is looking for game.", user.username)
+        getServiceActor(AccountServiceName) ! GetAccountByDiscordID(
+          DiscordID(user.username, user.discriminator.toShort),
+          (
+            DiscordServiceName,
+            ActorRefResolver(context.system).toSerializationFormat(context.self)
+          )
         )
-      )
-      Behaviors.receive {
-        case (_, GGResponse(Some(account: Account))) =>
-          getServiceActor(LadderServiceName) ! ChallengePlayer(
-            account.accountID,
-            Vector(),
-            null,
-            1)
-          Behaviors.stopped
-        case _ =>
-          logger.warn("Challenger does not have an account.")
-          Behaviors.stopped
-      }
-  }
+        Behaviors.receive {
+          case (_, GGResponse(Some(account: Account))) =>
+            getServiceActor(LadderServiceName) ! ChallengePlayer(
+              account.accountID,
+              Vector(),
+              null,
+              1)
+            DiscordService.getClient.tellUser(
+              user,
+              "challenge created.",
+              inChannel)
+            Behaviors.stopped
+          case _ =>
+            logger.warn("Challenger does not have an account.")
+            DiscordService.getClient.tellUser(
+              user,
+              "couldn't find your account; please register at https://ggtour.io/.",
+              inChannel)
+            Behaviors.stopped
+        }
+    }
 
 }

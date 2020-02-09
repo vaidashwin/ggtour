@@ -33,9 +33,8 @@ class BotCommands(
               channel <- msg.tGuildChannel
               user <- msg.authorUser
             } yield {
-              getServiceActor(DiscordServiceName) ! LfgFromDiscord(user)
-              channel.sendMessage(
-                s"${user.mention} creating challenge.")
+              getServiceActor(DiscordServiceName) ! LfgFromDiscord(user, channel)
+              channel.triggerTyping
             }
           )
       }

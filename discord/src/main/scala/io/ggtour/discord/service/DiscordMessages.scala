@@ -1,15 +1,15 @@
 package io.ggtour.discord.service
 
-import ackcord.data.User
+import ackcord.data.{GuildChannel, User}
 import io.ggtour.account.model.DiscordID
 import io.ggtour.common.service.{GGMessage, GGResponse}
 
 object DiscordMessages {
   case class DMUser(discordID: DiscordID, message: String) extends DiscordMessage
-  case class MentionUser(discordID: DiscordID, channelID: Int, message: String) extends DiscordMessage
+  case class TellUser(discordID: DiscordID, guildChannel: (Int, Int), message: String) extends DiscordMessage
 
   // Bot messages
-  case class LfgFromDiscord(sender: User) extends DiscordMessage
+  case class LfgFromDiscord(sender: User, inChannel: GuildChannel) extends DiscordMessage
 }
 
 sealed trait DiscordMessage extends GGMessage

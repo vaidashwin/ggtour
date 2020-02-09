@@ -1,9 +1,11 @@
 package io.ggtour.discord
 
 import ackcord._
+import ackcord.data.{GuildChannel, User}
 import ackcord.requests._
 import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.stream.scaladsl.Sink
+import io.ggtour.account.model.DiscordID
 import io.ggtour.core.service.ServiceNode
 import io.ggtour.common.config.GGTourConfig
 import io.ggtour.common.service.GGMessage
@@ -38,4 +40,8 @@ case class DiscordBot(service: ServiceNode[_ <: GGMessage]) {
   }
 
   val commands: BotCommands = new BotCommands(cache, requests, actorSystem)
+
+  def tellUser(user: User, message: String, inChannel: GuildChannel): Unit = {
+    requests.singleIgnore(CreateMessage(inChannel.id, CreateMessageData(content = s"${user.mentionNick}: $message")))
+  }
 }
