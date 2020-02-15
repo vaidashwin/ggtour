@@ -1,8 +1,9 @@
 package io.ggtour.core.service
 
 import akka.actor.ActorPath
-import akka.actor.typed.{ActorRef, ActorSystem}
+import akka.actor.typed.{ActorRef, ActorRefResolver, ActorSystem}
 import akka.actor.typed.scaladsl.ActorContext
+import io.ggtour.common.service.GGResponse.ServiceAndPath
 import io.ggtour.common.service.{GGMessage, ServiceName}
 
 object RemotingFacade {
@@ -18,6 +19,13 @@ object RemotingFacade {
     getProvider.getServiceActor(serviceName, actorSystem)
   def provideWith(provider: ActorRefProvider): Unit =
     this.provider = Some(provider)
+  implicit def convertMyActor2Path[T <: GGMessage](actorRef: ActorRef[T])(
+      implicit system: ActorSystem[_],
+      serviceName: ServiceName[T]): ServiceAndPath =
+    (
+      serviceName,
+      ActorRefResolver(system).toSerializationFormat(actorRef)
+    )
 }
 
 trait ActorRefProvider {

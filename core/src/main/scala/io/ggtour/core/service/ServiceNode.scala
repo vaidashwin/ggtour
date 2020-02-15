@@ -5,8 +5,8 @@ import akka.actor.typed.{ActorRef, ActorSystem, Behavior, Scheduler}
 import akka.actor.typed.scaladsl.adapter._
 import akka.util.Timeout
 import akka.actor.typed.scaladsl.AskPattern._
+import io.ggtour.common.logging.LazyLogging
 import io.ggtour.common.service.GGMessage
-import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.Future
 
@@ -14,17 +14,16 @@ import scala.concurrent.Future
 // implement this class.
 abstract class ServiceNode[T <: GGMessage](val serviceActor: ServiceActor[T]) extends App {
   val actorSystem: ActorSystem[GGMessage] =
-    ActorSystem(GGTourBehavior(serviceActor), s"ggtour-${serviceActor.serviceBaseName}-system")
+    ActorSystem(GGTourBehavior(serviceActor), s"ggtour-${serviceActor.serviceName}-system")
 
   def apply(): ActorRef[GGMessage] = actorSystem
   def system(): ActorSystem[GGMessage] = actorSystem
 }
 
-object GGTourBehavior {
-  val logger: Logger = LoggerFactory.getLogger(this.getClass)
+object GGTourBehavior extends LazyLogging {
   def apply[T <: GGMessage](service: ServiceActor[T]): Behavior[GGMessage] = Behaviors.receivePartial {
     case (context, message: T) =>
-      logger.debug("Received message: {}", message)
+      logger.debug(s"Service ${service.serviceName} received message: $message")
       context.spawn(service.serviceBehavior, service.getActorName) ! message
       Behaviors.same
   }

@@ -21,6 +21,6 @@ object LadderJsonFormats extends CommonJsonProtocols {
     }
   implicit val gameResultFormat: JsonFormat[GameResult] = jsonFormat1(
     GameResult)
-  implicit val challengeFormat: JsonFormat[Challenge] = jsonFormat7(Challenge)
+  implicit val challengeFormat: JsonFormat[Challenge] = jsonFormat6(Challenge)
 
 }

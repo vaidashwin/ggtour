@@ -10,6 +10,7 @@ object DiscordMessages {
 
   // Bot messages
   case class LfgFromDiscord(sender: User, inChannel: GuildChannel) extends DiscordMessage
+  case class RespondToChallengeFromDiscord(sender: User, targetUser: User, accepted: Boolean) extends DiscordMessage
 }
 
 sealed trait DiscordMessage extends GGMessage

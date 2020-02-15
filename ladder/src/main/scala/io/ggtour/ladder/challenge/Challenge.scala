@@ -5,8 +5,7 @@ import java.util.UUID
 import io.ggtour.ladder.elo.GameResult
 
 case class Challenge(
-    id: UUID,
-    challengerID: UUID,
+    challengerID: UUID, // primary key for Redis
     challengeeIDs: Vector[UUID],
     formatID: UUID,
     bestOf: Int,

@@ -14,6 +14,7 @@ lazy val common = dependencyProject("common")
   .in(file("./common"))
   .settings(
     libraryDependencies ++= Seq(
+      "com.typesafe.akka" %% "akka-actor-typed" % "2.6.0",
       "com.typesafe.slick" %% "slick" % "3.3.2",
       "com.typesafe.slick" %% "slick-hikaricp" % "3.3.2",
       "com.typesafe" % "config" % "1.4.0",
@@ -21,8 +22,9 @@ lazy val common = dependencyProject("common")
       "com.github.tminglei" %% "slick-pg" % "0.18.1",
       "com.github.tminglei" %% "slick-pg_joda-time" % "0.18.1",
       "com.github.tminglei" %% "slick-pg_spray-json" % "0.18.1",
+      "ch.qos.logback" % "logback-classic" % "1.2.3",
       "ch.qos.logback" % "logback-core" % "1.2.3",
-      "org.slf4j" % "slf4j-simple" % "1.6.4",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
       "org.postgresql" % "postgresql" % "9.4.1209",
       "org.flywaydb" % "flyway-core" % "6.2.1"
     )
@@ -66,7 +68,6 @@ lazy val core = dependencyProject("core")
   .in(file("./core"))
   .settings(
     libraryDependencies ++= Seq(
-      "com.typesafe.akka" %% "akka-actor-typed" % "2.6.0",
       "net.debasishg" %% "redisclient" % "3.20"
     ),
   )
